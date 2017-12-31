@@ -23,6 +23,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
@@ -49,6 +50,7 @@ public class MainForm extends javax.swing.JFrame {
     public MainForm() {
         initComponents();
         try{
+            setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             folderIconPath = this.getClass().getResource("/images").toString().replaceAll("file:", "");
             avatar.setIcon(new ImageIcon(folderIconPath + "/avatar.png"));
             tfUserName.setText(Singleton.client.getName());
@@ -394,6 +396,7 @@ public class MainForm extends javax.swing.JFrame {
         modelLogout.addElement(Constants.LOGOUT);
         modelLogout.addElement(Singleton.client.getName());
         Singleton.client.SendMessage(modelLogout);
+        Singleton.mainForm = null;
         new LoginForm().setVisible(true);
     }//GEN-LAST:event_formWindowClosing
 
@@ -707,6 +710,7 @@ public class MainForm extends javax.swing.JFrame {
       pnlChatBox.add(panel);
       pnlChatBox.validate();
       pnlChatBox.repaint();
+      scrollDown(scrChatBox);
     }
 
     private void GetFileFromServer(String fileName) {

@@ -17,6 +17,7 @@ public class FriendManager {
     public static DefaultListModel<Friend> ListFriend = new DefaultListModel();
     
     public static void SetFriends(ArrayList<String> friends, String filterName) {
+        ListFriend = new DefaultListModel();
         for(int i = 0; i < friends.size(); i++) {
             if (friends.get(i).equals(filterName)) {
                 continue;
