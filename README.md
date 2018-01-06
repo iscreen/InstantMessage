@@ -6,6 +6,7 @@ This is a java version chat service that create by Netbeans.
 
 1. Java 8
 2. [Netbeans](https://netbeans.org/downloads/)
+3. sqlite
 
 ## Usage
 
@@ -17,3 +18,11 @@ start `com.niu.server.IMServer`
 ## Chat Client
 
 start `com.niu.client.Application`
+
+## Sqlite Database
+
+### Users
+
+```sql
+create table users(name primary key, password text, status text);
+```

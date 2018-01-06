@@ -12,14 +12,17 @@ package com.niu.server;
 public class Friend {
     private String name;
     private String status;
+    
     public Friend(String name) {
-        this.name = name;
-        this.status = "Offline";
+       this.name = name;
+       this.status = "Offline";
     }
+    
     public Friend(String name, String status) {
         this.name = name;
         this.status = status;
     }
+    
     public String getName() {
         return this.name;
     }

@@ -22,26 +22,25 @@ import javax.swing.DefaultListModel;
  */
 public class IMServer {
 
-    public static String publicFolderPath;
-    private static HashSet<String> names = new HashSet<String>();
-    private static HashMap<String, Socket> clients = new HashMap<String, Socket>();
-    private static HashMap<String, ObjectOutputStream> map = new HashMap<String, ObjectOutputStream>();
-    private static HashMap<String, String> data = new HashMap<String, String>();
-       
-    public IMServer() {
-//        publicFolderPath = this.getClass().getResource("store").toString();
+    public String dataPath;
+    public String publicFolderPath;
+    private DB db;
+    private HashSet<String> names = new HashSet<String>();
+    private HashMap<String, Socket> clients = new HashMap<String, Socket>();
+    private HashMap<String, ObjectOutputStream> map = new HashMap<String, ObjectOutputStream>();
+//    private HashMap<String, String> data = new HashMap<String, String>();
+    private int port;
+    
+    public IMServer(int port) {
+        dataPath = this.getClass().getResource("/data").toString().replaceAll("file:", "");
+        db = new DB(dataPath + "/im.db");
+        this.port = port;
         this.load();
     }
     
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
-        
+    public void start() {
         try {
-            ServerSocket sSocket = new ServerSocket(Constants.PORT);
-            IMServer server = new IMServer();
+            ServerSocket sSocket = new ServerSocket(port);
             System.out.println("Server is running....");
             while(true) {
               new ClientHandler(sSocket.accept()).start();
@@ -49,8 +48,26 @@ public class IMServer {
         }catch(Exception e) {
         }
     }
+    private HashMap<String, String> ReadFileData() {
+        HashMap<String, String> result = new HashMap<String, String>();
+
+        try {
+
+        }catch (Exception exp) {
+                System.out.printf("!! IMServer ReadFileData: %s", exp.toString());
+        }
+        return result;
+    }
     
-    private static class ClientHandler extends Thread {
+    private void load() {
+        ArrayList<Friend> users = db.GetUsers();
+        for(Friend user: users) {
+//            data.put(user.getName(), "p@ssword");
+            names.add(user.getName());
+        }
+    }
+    
+    private class ClientHandler extends Thread {
 		
         private String name;
         private Socket client;
@@ -76,7 +93,7 @@ public class IMServer {
                     String password = (String) model.elementAt(2);
                     DefaultListModel resModel = new DefaultListModel();
                     if (type == Constants.LOGIN) { // Login
-                        if (names.contains(name) && (data.get(name)).equals(password)) {
+                        if (db.UserAuth(name, password)) {
                                 resModel.addElement(Constants.SUCCESS);
                                 //回傳用戶清單
                                 resModel.addElement(new ArrayList<String>(names));
@@ -87,9 +104,9 @@ public class IMServer {
                                 continue;
                         }
                     } else if (type == Constants.REGISTER) { // Register
-                        if (!names.contains(name)) {
+                        if (!db.UserExist(name)) {
                             names.add(name);
-                            data.put(name, password);
+                            db.AddUser(name, password, "Online");
                             resModel.addElement(Constants.SUCCESS);
                             resModel.addElement(new ArrayList<String>(names));
                             out.writeObject(resModel);	
@@ -103,6 +120,7 @@ public class IMServer {
                     
                     clients.put(name, client);
                     map.put(name, out);
+                    db.UpdateStatus(name, "Online");
                     StatusChange(name, "Online");
                     while(true) {
                         try {
@@ -161,6 +179,12 @@ public class IMServer {
 
         private void Logout(DefaultListModel inputMsg, String senderName) {
             System.out.printf("Client \" %s\" log out!\n", senderName);
+            try {
+                db.UpdateStatus(senderName, "Offline");
+                StatusChange(senderName, "Offline");
+            } catch(Exception exp) {
+                System.out.printf("!! Logout error: %s", exp.getMessage());
+            }
             clients.remove(senderName);
             Thread.currentThread().stop();
         }
@@ -196,26 +220,12 @@ public class IMServer {
             }
         }
     }
-
-    private HashMap<String, String> ReadFileData() {
-        HashMap<String, String> result = new HashMap<String, String>();
-
-        try {
-
-        }catch (Exception exp) {
-                System.out.printf("!! IMServer ReadFileData: %s", exp.toString());
-        }
-        return result;
-    }
     
-    private void load() {
-        
-        String[] users = {"Dean", "Allen", "David", "Eric", "Jeff", "Elain", "Chery" };
-        
-        for(int i = 0; i < users.length; i++) {
-            data.put(users[i], "p@ssword");
-            names.add(users[i]);
-        }
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        IMServer server = new IMServer(Constants.PORT);
+        server.start();
     }
-    
 }
