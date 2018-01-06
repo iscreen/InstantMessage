@@ -25,17 +25,16 @@ public class IMServer {
     public String dataPath;
     public String publicFolderPath;
     private DB db;
-    private HashSet<String> names = new HashSet<String>();
+    private HashMap<String, Friend> users = new HashMap<String, Friend>();
     private HashMap<String, Socket> clients = new HashMap<String, Socket>();
     private HashMap<String, ObjectOutputStream> map = new HashMap<String, ObjectOutputStream>();
-//    private HashMap<String, String> data = new HashMap<String, String>();
     private int port;
     
     public IMServer(int port) {
         dataPath = this.getClass().getResource("/data").toString().replaceAll("file:", "");
         db = new DB(dataPath + "/im.db");
         this.port = port;
-        this.load();
+        this.loadUsers();
     }
     
     public void start() {
@@ -59,11 +58,10 @@ public class IMServer {
         return result;
     }
     
-    private void load() {
-        ArrayList<Friend> users = db.GetUsers();
-        for(Friend user: users) {
-//            data.put(user.getName(), "p@ssword");
-            names.add(user.getName());
+    private void loadUsers() {
+        ArrayList<Friend> dbusers = db.GetUsers();
+        for(Friend user: dbusers) {
+            users.put(user.getName(), user);
         }
     }
     
@@ -95,8 +93,11 @@ public class IMServer {
                     if (type == Constants.LOGIN) { // Login
                         if (db.UserAuth(name, password)) {
                                 resModel.addElement(Constants.SUCCESS);
+                                db.UpdateStatus(name, "Online");
+                                StatusChange(name, "Online");
+                                ArrayList<Friend> friends = new ArrayList<Friend>(users.values());
                                 //回傳用戶清單
-                                resModel.addElement(new ArrayList<String>(names));
+                                resModel.addElement(friends);
                                 out.writeObject(resModel);	
                         } else {
                                 resModel.addElement(Constants.ERROR);
@@ -105,10 +106,11 @@ public class IMServer {
                         }
                     } else if (type == Constants.REGISTER) { // Register
                         if (!db.UserExist(name)) {
-                            names.add(name);
+                            users.put(name, new Friend(name, "Online"));
                             db.AddUser(name, password, "Online");
+                            StatusChange(name, "Online");
                             resModel.addElement(Constants.SUCCESS);
-                            resModel.addElement(new ArrayList<String>(names));
+                            resModel.addElement(new ArrayList<Friend>(users.values()));
                             out.writeObject(resModel);	
                         } else {
                             resModel.addElement(Constants.ERROR);
@@ -120,8 +122,7 @@ public class IMServer {
                     
                     clients.put(name, client);
                     map.put(name, out);
-                    db.UpdateStatus(name, "Online");
-                    StatusChange(name, "Online");
+                    
                     while(true) {
                         try {
                             in = new ObjectInputStream(client.getInputStream());
@@ -193,23 +194,24 @@ public class IMServer {
          * 通知上線
          * @param senderName 
          */
-        private void StatusChange(String senderName, String status) {
+        private synchronized void StatusChange(String senderName, String status) {
             System.out.printf("Client \" %s\" log in!\n", senderName);
             DefaultListModel model = new DefaultListModel();
             model.addElement(Constants.STATUS_CHANGE);
             model.addElement(status);
             model.addElement(senderName);
             
-            for(String name : names) {
+            for(Friend user: users.values()) {
                 try {
-                    if (name.equals(senderName)) {
+                    if (user.getName().equals(senderName)) {
+                        users.replace(senderName, new Friend(senderName, status));
                         continue;
                     }
-                    Socket client = clients.get(name);
+                    Socket client = clients.get(user.getName());
                     if (client == null) {
                         continue;
                     }    
-                    outbc = map.get(name);
+                    outbc = map.get(user.getName());
                     outbc = new ObjectOutputStream(client.getOutputStream());
                     outbc.writeObject(model);
                     outbc.flush();

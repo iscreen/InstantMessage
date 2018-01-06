@@ -6,6 +6,7 @@
 package com.niu.client;
 
 import com.niu.server.Constants;
+import com.niu.server.Friend;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -56,7 +57,7 @@ public class Client {
             int type = (int) model.elementAt(0);
             System.out.printf("type: %d\n", type);
             if (type == Constants.SUCCESS) {
-                FriendManager.SetFriends((ArrayList<String>)model.elementAt(1), username); 
+                FriendManager.SetFriends((ArrayList<Friend>)model.elementAt(1), username); 
                 Singleton.LoginSuccess = true;
                 startClient();
             }
@@ -87,7 +88,7 @@ public class Client {
             int type = (int) model.elementAt(0);
             System.out.printf("type: %d\n", type);
             if (type == Constants.SUCCESS) {
-                FriendManager.SetFriends((ArrayList<String>)model.elementAt(1), username); 
+                FriendManager.SetFriends((ArrayList<Friend>)model.elementAt(1), username); 
                 Singleton.LoginSuccess = true;
                 startClient();
             }
@@ -167,6 +168,8 @@ public class Client {
                     } else if (type == Constants.STATUS_CHANGE) {
                         String status = (String)model.elementAt(1);
                         String sender = (String)model.elementAt(2);
+                        FriendManager.UpdateStatus(sender, status);
+                        Singleton.mainForm.UpdateFriends();
                         System.out.printf("%s status change to %s\n", sender, status);
                     }
                     Thread.sleep(500);

@@ -17,13 +17,22 @@ import javax.swing.DefaultListModel;
 public class FriendManager {
     public static DefaultListModel<Friend> ListFriend = new DefaultListModel();
     
-    public static void SetFriends(ArrayList<String> friends, String filterName) {
+    public static void SetFriends(ArrayList<Friend> friends, String filterName) {
         ListFriend = new DefaultListModel();
         for(int i = 0; i < friends.size(); i++) {
-            if (friends.get(i).equals(filterName)) {
+            if (friends.get(i).getName().equals(filterName)) {
                 continue;
             }
-            ListFriend.addElement(new Friend(friends.get(i)));
+            ListFriend.addElement(friends.get(i));
+        }
+    }
+    
+    public static void UpdateStatus(String name, String status) {
+        for(int i = 0; i < ListFriend.size(); i++) {
+            if (ListFriend.get(i).getName().equals(name)) {
+                ListFriend.set(i, new Friend(name, status));
+                break;
+            }
         }
     }
 }

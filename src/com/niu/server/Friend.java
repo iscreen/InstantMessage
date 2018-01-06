@@ -5,11 +5,13 @@
  */
 package com.niu.server;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Dean Lin
  */
-public class Friend {
+public class Friend implements Serializable {
     private String name;
     private String status;
     
@@ -26,7 +28,12 @@ public class Friend {
     public String getName() {
         return this.name;
     }
+    
+    public String getStatus() {
+        return this.status;
+    }
+    
     public String toString() {
-        return this.name + " " + this.status;
+        return this.name + " -- " + this.status;
     }
 }

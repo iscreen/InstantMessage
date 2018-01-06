@@ -84,7 +84,7 @@ public class MainForm extends javax.swing.JFrame {
         listGroup = new javax.swing.JList<>();
         pnlFriendCurrent = new javax.swing.JPanel();
         lbNameFriendSelected = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
+        lblStatus = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
@@ -215,8 +215,8 @@ public class MainForm extends javax.swing.JFrame {
         lbNameFriendSelected.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
         lbNameFriendSelected.setText("jLabel1");
 
-        jLabel1.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
-        jLabel1.setText("Status");
+        lblStatus.setFont(new java.awt.Font("Lucida Grande", 0, 11)); // NOI18N
+        lblStatus.setText("Status");
 
         jLabel3.setBackground(new java.awt.Color(211, 211, 211));
         jLabel3.setForeground(new java.awt.Color(211, 211, 211));
@@ -301,7 +301,7 @@ public class MainForm extends javax.swing.JFrame {
                         .addGap(130, 130, 130)
                         .addGroup(pnlFriendCurrentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lbNameFriendSelected)
-                            .addComponent(jLabel1)))
+                            .addComponent(lblStatus)))
                     .addGroup(pnlFriendCurrentLayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(scrChatBox, javax.swing.GroupLayout.PREFERRED_SIZE, 652, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -319,7 +319,7 @@ public class MainForm extends javax.swing.JFrame {
                         .addGap(28, 28, 28)
                         .addComponent(lbNameFriendSelected)
                         .addGap(18, 18, 18)
-                        .addComponent(jLabel1))
+                        .addComponent(lblStatus))
                     .addGroup(pnlFriendCurrentLayout.createSequentialGroup()
                         .addGap(17, 17, 17)
                         .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
@@ -480,6 +480,7 @@ public class MainForm extends javax.swing.JFrame {
         if (selectedFriendIndex > -1) {
             Friend f = (Friend) FriendManager.ListFriend.get(selectedFriendIndex);
             lbNameFriendSelected.setText(f.getName());
+            lblStatus.setText(f.getStatus());
         }
 
         // reset panel chat box
@@ -546,7 +547,6 @@ public class MainForm extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel avatar;
     private javax.swing.JButton btnSend;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -557,6 +557,7 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lbNameFriendSelected;
+    private javax.swing.JLabel lblStatus;
     private javax.swing.JList<String> listFriendContacts;
     private javax.swing.JList<String> listGroup;
     private javax.swing.JPanel pnlChatBox;
@@ -714,6 +715,10 @@ public class MainForm extends javax.swing.JFrame {
       scrollDown(scrChatBox);
     }
 
+    public void UpdateFriends() {
+        listFriendContacts = new javax.swing.JList(FriendManager.ListFriend);
+    }
+    
     private void GetFileFromServer(String fileName) {
       DefaultListModel model = new DefaultListModel();
       model.addElement(Constants.GET_FILE);
