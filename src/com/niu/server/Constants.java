@@ -24,4 +24,6 @@ public class Constants {
     public static final int GET_FILE = 102;
     public static final int SEND_LINK = 103;
     public static final int LOGOUT = 104;
+    public static final int STATUS_CHANGE = 105;
+    
 }

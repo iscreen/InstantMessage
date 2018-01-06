@@ -5,6 +5,7 @@
  */
 package com.niu.client;
 
+import com.niu.server.Friend;
 import java.util.ArrayList;
 import java.util.Vector;
 import javax.swing.DefaultListModel;

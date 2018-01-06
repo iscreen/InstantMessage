@@ -5,6 +5,7 @@
  */
 package com.niu.client;
 
+import com.niu.server.Friend;
 import com.niu.server.Constants;
 import java.awt.Canvas;
 import java.awt.Color;
@@ -406,7 +407,7 @@ public class MainForm extends javax.swing.JFrame {
 
             if (!Singleton.IsChatGroup) {
                 int index = listFriendContacts.getSelectedIndex();
-                Friend friend = (com.niu.client.Friend) FriendManager.ListFriend.get(index);
+                Friend friend = (com.niu.server.Friend) FriendManager.ListFriend.get(index);
 
                 DefaultListModel listFriend = new DefaultListModel();
                 listFriend.addElement(friend.getName());

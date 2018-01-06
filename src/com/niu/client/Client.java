@@ -164,6 +164,10 @@ public class Client {
                         System.out.printf("receiveed message:" + receiveMsg);
                         Singleton.mainForm.CreateBoxMessage(receiveMsg, false);
 //                        Singleton.mainForm.ReceivedMessage(receiveMsg, sender);
+                    } else if (type == Constants.STATUS_CHANGE) {
+                        String status = (String)model.elementAt(1);
+                        String sender = (String)model.elementAt(2);
+                        System.out.printf("%s status change to %s\n", sender, status);
                     }
                     Thread.sleep(500);
                 }

@@ -5,6 +5,7 @@
  */
 package com.niu.client;
 
+import com.niu.server.Friend;
 import javax.swing.DefaultListModel;
 
 /**

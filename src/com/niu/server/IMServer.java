@@ -71,7 +71,6 @@ public class IMServer {
                     out = new ObjectOutputStream(client.getOutputStream());
 
                     DefaultListModel model = (DefaultListModel) in.readObject();
-
                     int type = (int) model.elementAt(0);
                     String name = (String) model.elementAt(1);
                     String password = (String) model.elementAt(2);
@@ -101,10 +100,10 @@ public class IMServer {
                             continue;
                         }
                     }
-
+                    
                     clients.put(name, client);
                     map.put(name, out);
-
+                    StatusChange(name, "Online");
                     while(true) {
                         try {
                             in = new ObjectInputStream(client.getInputStream());
@@ -162,7 +161,39 @@ public class IMServer {
 
         private void Logout(DefaultListModel inputMsg, String senderName) {
             System.out.printf("Client \" %s\" log out!\n", senderName);
+            clients.remove(senderName);
             Thread.currentThread().stop();
+        }
+        
+        /**
+         * 通知上線
+         * @param senderName 
+         */
+        private void StatusChange(String senderName, String status) {
+            System.out.printf("Client \" %s\" log in!\n", senderName);
+            DefaultListModel model = new DefaultListModel();
+            model.addElement(Constants.STATUS_CHANGE);
+            model.addElement(status);
+            model.addElement(senderName);
+            
+            for(String name : names) {
+                try {
+                    if (name.equals(senderName)) {
+                        continue;
+                    }
+                    Socket client = clients.get(name);
+                    if (client == null) {
+                        continue;
+                    }    
+                    outbc = map.get(name);
+                    outbc = new ObjectOutputStream(client.getOutputStream());
+                    outbc.writeObject(model);
+                    outbc.flush();
+                }catch (Exception exp) {
+                    Logger.getLogger(IMServer.class.getName()).log(Level.SEVERE, null, exp.getMessage());
+                    System.out.printf("!! error: %s", exp.getMessage());
+                }
+            }
         }
     }
 
