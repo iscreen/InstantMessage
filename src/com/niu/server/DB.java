@@ -80,36 +80,29 @@ public class DB {
             rs.close();
          } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
          }
         return auth;
     }
     
-    public boolean UserExist(String username) {
+    public boolean UserExist(String username) throws SQLException{
         boolean found = false;
-        Statement stmt = null;
-        try {
-            if (conn.isClosed()) {
-                open();
-            }
-            conn.setAutoCommit(false);
-            stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery( "SELECT count(*) FROM users WHERE name=" + username + ";" );
-            while ( rs.next() ) {
-               found = true;
-               break;
-            }
-            rs.close();
-            stmt.close();
-         } catch ( Exception e ) {
-            System.err.println( e.getClass().getName() + ": " + e.getMessage() );
-            System.exit(0);
-         }
+        String sql = "SELECT count(*) FROM users WHERE name=?";
+        PreparedStatement pst = null;
+        pst = conn.prepareStatement(sql);
+        int idx = 1 ; 
+        pst.setString(idx++, username);
+        ResultSet rs = pst.executeQuery();
+        while ( rs.next() ) {
+           int cnt = rs.getInt(1);
+           found = cnt == 1 ? true : false;
+           break;
+        }
+        rs.close();
         return found;
     }
     
     //新增
-    public void AddUser(String name, String password, String status)throws SQLException{
+    public void AddUser(String name, String password, String status) throws SQLException{
         String sql = "insert into users (name, password, status) values(?,?,?)";
         PreparedStatement pst = null;
         pst = conn.prepareStatement(sql);

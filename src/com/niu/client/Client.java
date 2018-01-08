@@ -72,9 +72,8 @@ public class Client {
         this.username = username;
         this.password = password;
         try {
-            if (socket == null) {
-                socket = new Socket(this.host, this.port);
-            }
+            socket = new Socket(this.host, this.port);
+            
             Thread.sleep(500);
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
