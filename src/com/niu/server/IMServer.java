@@ -147,6 +147,9 @@ public class IMServer {
                 case Constants.SEND_MSG:
                     SendMsg(inputMsg, senderName);
                     break;
+                case Constants.SEND_FILE:
+                    SendFile(inputMsg, senderName);
+                    break;
                 case Constants.LOGOUT:
                     Logout(inputMsg, senderName);
                     break;
@@ -171,6 +174,32 @@ public class IMServer {
                     outbc.writeObject(model);
                     outbc.flush();
                     System.out.println("Send message successfully." + msg);
+                }catch (Exception exp) {
+                    Logger.getLogger(IMServer.class.getName()).log(Level.SEVERE, null, exp.getMessage());
+                    System.out.printf("!! error: %s", exp.getMessage());
+                }
+            }
+        }
+        
+        private void SendFile(DefaultListModel inputMsg, String senderName) {
+            String filename = (String) inputMsg.elementAt(1);
+            byte[] buffer = (byte[])inputMsg.elementAt(2);
+            String sender = (String) inputMsg.elementAt(3);
+            System.out.printf("file: %s, sender: %s \n", filename, sender);
+            DefaultListModel<String> listFriend = (DefaultListModel<String>) inputMsg.elementAt(4);
+            for(int i = 0 ; i < listFriend.size(); i++) {
+                String teNameOut = listFriend.elementAt(i);
+                outbc = map.get(teNameOut);
+                try {
+                    DefaultListModel model = new DefaultListModel();
+                    model.addElement(Constants.SEND_FILE);
+                    model.addElement(filename);
+                    model.addElement(sender);
+
+                    outbc = new ObjectOutputStream(clients.get(teNameOut).getOutputStream());
+                    outbc.writeObject(model);
+                    outbc.flush();
+                    System.out.println("Send file successfully." + filename);
                 }catch (Exception exp) {
                     Logger.getLogger(IMServer.class.getName()).log(Level.SEVERE, null, exp.getMessage());
                     System.out.printf("!! error: %s", exp.getMessage());

@@ -163,7 +163,11 @@ public class Client {
                         String sender = (String)model.elementAt(2);
                         System.out.printf("receiveed message:" + receiveMsg);
                         Singleton.mainForm.CreateBoxMessage(receiveMsg, false);
-//                        Singleton.mainForm.ReceivedMessage(receiveMsg, sender);
+                    } else if (type == Constants.SEND_FILE) {
+                        String filename = (String)model.elementAt(1);
+                        String sender = (String)model.elementAt(2);
+                        System.out.printf("receiveed file:" + filename);
+                        Singleton.mainForm.CreateBoxMessage(filename, false);
                     } else if (type == Constants.STATUS_CHANGE) {
                         String status = (String)model.elementAt(1);
                         String sender = (String)model.elementAt(2);

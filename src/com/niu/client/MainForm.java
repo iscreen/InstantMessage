@@ -24,6 +24,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -90,6 +91,7 @@ public class MainForm extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         btnSend = new javax.swing.JButton();
         tbInput = new javax.swing.JTextField();
+        btnAttachFile = new javax.swing.JButton();
         scrChatBox = new javax.swing.JScrollPane();
         pnlChatBox = new javax.swing.JPanel();
 
@@ -165,11 +167,6 @@ public class MainForm extends javax.swing.JFrame {
         listFriendContacts.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         listFriendContacts.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         listFriendContacts.setPreferredSize(new java.awt.Dimension(54, 130));
-        listFriendContacts.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                listFriendContactsMousePressed(evt);
-            }
-        });
         listFriendContacts.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 listFriendContactsValueChanged(evt);
@@ -241,21 +238,31 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
 
+        btnAttachFile.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/attach.png"))); // NOI18N
+        btnAttachFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAttachFileActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(tbInput, javax.swing.GroupLayout.PREFERRED_SIZE, 564, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(tbInput, javax.swing.GroupLayout.PREFERRED_SIZE, 497, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnSend, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnAttachFile, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(15, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnAttachFile, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnSend, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(tbInput, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 8, Short.MAX_VALUE))
@@ -491,9 +498,32 @@ public class MainForm extends javax.swing.JFrame {
         heightOfPanels = 0;
     }//GEN-LAST:event_listFriendContactsValueChanged
 
-    private void listFriendContactsMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listFriendContactsMousePressed
+    private void btnAttachFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAttachFileActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_listFriendContactsMousePressed
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Please choose file");
+        int result = fc.showOpenDialog(null);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            byte[] buffer = GetByteFile(file);
+            if (!Singleton.IsChatGroup) {
+                int index = listFriendContacts.getSelectedIndex();
+                Friend friend = (Friend)FriendManager.ListFriend.get(index);
+                DefaultListModel listFriend = new DefaultListModel();
+                listFriend.addElement(friend.getName());
+                DefaultListModel listModel = new DefaultListModel();
+                listModel.addElement(Constants.SEND_FILE);
+                listModel.addElement(file.getName());
+                listModel.addElement(buffer);
+                listModel.addElement(Singleton.client.getName());
+                listModel.addElement(listFriend);
+                Singleton.client.SendMessage(listModel);
+                CreateBoxMessage(file.getName(), true);
+            } else {
+                // Chat Group
+            }
+        }
+    }//GEN-LAST:event_btnAttachFileActionPerformed
 
     private byte[] GetByteFile(java.io.File file) {
         try {
@@ -546,6 +576,7 @@ public class MainForm extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel avatar;
+    private javax.swing.JButton btnAttachFile;
     private javax.swing.JButton btnSend;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -716,7 +747,18 @@ public class MainForm extends javax.swing.JFrame {
     }
 
     public void UpdateFriends() {
-        listFriendContacts = new javax.swing.JList(FriendManager.ListFriend);
+        System.out.println("UpdateFriends");
+        this.listFriendContacts = new javax.swing.JList(FriendManager.ListFriend);
+        listFriendContacts.setFont(new java.awt.Font("PT Serif Caption", 0, 16)); // NOI18N
+        listFriendContacts.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        listFriendContacts.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        listFriendContacts.setPreferredSize(new java.awt.Dimension(54, 130));
+        listFriendContacts.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                listFriendContactsValueChanged(evt);
+            }
+        });
+        jScrollPane1.setViewportView(listFriendContacts);
     }
     
     private void GetFileFromServer(String fileName) {
