@@ -5,6 +5,11 @@
  */
 package com.niu.server;
 
+import com.niu.client.MainForm;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
@@ -45,6 +50,7 @@ public class IMServer {
               new ClientHandler(sSocket.accept()).start();
             }
         }catch(Exception e) {
+            System.out.println("Server not funning......" + e.getMessage());
         }
     }
     private HashMap<String, String> ReadFileData() {
@@ -150,6 +156,9 @@ public class IMServer {
                 case Constants.SEND_FILE:
                     SendFile(inputMsg, senderName);
                     break;
+                case Constants.GET_FILE:
+                    GetFile(inputMsg, senderName);
+                    break;
                 case Constants.LOGOUT:
                     Logout(inputMsg, senderName);
                     break;
@@ -184,6 +193,7 @@ public class IMServer {
         private void SendFile(DefaultListModel inputMsg, String senderName) {
             String filename = (String) inputMsg.elementAt(1);
             byte[] buffer = (byte[])inputMsg.elementAt(2);
+            SaveFile(buffer, filename);
             String sender = (String) inputMsg.elementAt(3);
             System.out.printf("file: %s, sender: %s \n", filename, sender);
             DefaultListModel<String> listFriend = (DefaultListModel<String>) inputMsg.elementAt(4);
@@ -205,6 +215,28 @@ public class IMServer {
                     System.out.printf("!! error: %s", exp.getMessage());
                 }
             }
+        }
+        
+        private void GetFile(DefaultListModel inputMsg, String senderName) {
+            String filename = (String) inputMsg.elementAt(1);
+            String sender = (String) inputMsg.elementAt(2);
+            byte[] buffer = GetByteFile(filename);
+            System.out.printf("file: %s, sender: %s \n", filename, sender);            
+            try {
+                DefaultListModel model = new DefaultListModel();
+                model.addElement(Constants.GET_FILE);
+                model.addElement(filename);
+                model.addElement(buffer);
+                model.addElement(sender);
+                outbc = new ObjectOutputStream(clients.get(senderName).getOutputStream());
+                outbc.writeObject(model);
+                outbc.flush();
+                System.out.println("Send file successfully." + filename);
+            }catch (Exception exp) {
+                Logger.getLogger(IMServer.class.getName()).log(Level.SEVERE, null, exp.getMessage());
+                System.out.printf("!! error: %s", exp.getMessage());
+            }
+            
         }
 
         private void Logout(DefaultListModel inputMsg, String senderName) {
@@ -248,6 +280,31 @@ public class IMServer {
                     Logger.getLogger(IMServer.class.getName()).log(Level.SEVERE, null, exp.getMessage());
                     System.out.printf("!! error: %s", exp.getMessage());
                 }
+            }
+        }
+        
+        private byte[] GetByteFile(String filename) {
+            try {
+                File file = new File(dataPath + "/" + filename);
+                byte[] buffer = new byte[(int)file.length()];
+                DataInputStream in = new DataInputStream(new java.io.FileInputStream(file));
+                in.readFully(buffer);
+                return buffer;
+            }catch(IOException exp) {
+                Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, exp);
+                return null;
+            }
+        }
+        
+        private void SaveFile(byte[] buffer, String filename) {
+            try {
+                File file = new File(dataPath + "/" + filename);
+                DataOutputStream out = new DataOutputStream(new java.io.FileOutputStream(file));
+                out.write(buffer);
+                out.close();
+
+            }catch(IOException exp) {
+                Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, exp);
             }
         }
     }

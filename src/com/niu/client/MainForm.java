@@ -9,11 +9,14 @@ import com.niu.server.Friend;
 import com.niu.server.Constants;
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Panel;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
 import java.io.*;
@@ -44,7 +47,9 @@ import javax.swing.ScrollPaneConstants;
  */
 public class MainForm extends javax.swing.JFrame {
 
+    public final JFileChooser fileChooser = new JFileChooser();
     public String folderIconPath;
+    public String downloadPath;
 
     /**
      * Creates new form MainForm
@@ -52,6 +57,7 @@ public class MainForm extends javax.swing.JFrame {
     public MainForm() {
         initComponents();
         try{
+            downloadPath = System.getProperty("user.home") + "/Downloads";
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             folderIconPath = this.getClass().getResource("/images").toString().replaceAll("file:", "");
             avatar.setIcon(new ImageIcon(folderIconPath + "/avatar.png"));
@@ -502,6 +508,7 @@ public class MainForm extends javax.swing.JFrame {
         // TODO add your handling code here:
         JFileChooser fc = new JFileChooser();
         fc.setDialogTitle("Please choose file");
+        fc.setCurrentDirectory(new File(System.getProperty("user.home") + "/Documents"));
         int result = fc.showOpenDialog(null);
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
@@ -743,6 +750,15 @@ public class MainForm extends javax.swing.JFrame {
       pnlChatBox.add(panel);
       pnlChatBox.validate();
       pnlChatBox.repaint();
+      
+      panel.addMouseListener(new MouseAdapter() {
+          public void mouseClicked(MouseEvent e) {
+              GetFileFromServer(fileName);
+          }
+          public void mouseEntered(MouseEvent e) {
+              panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+          }
+      });
       scrollDown(scrChatBox);
     }
 
@@ -761,6 +777,55 @@ public class MainForm extends javax.swing.JFrame {
         jScrollPane1.setViewportView(listFriendContacts);
     }
     
+    public void SaveFileFromServer(String filename, byte[] buffer) {
+        
+        fileChooser.setSelectedFile(new File(filename));
+        int retval = fileChooser.showSaveDialog(this);
+        if (retval == JFileChooser.APPROVE_OPTION) {
+          File file = fileChooser.getSelectedFile();
+          if (file == null) {
+            return;
+          }
+
+          try {
+              DataOutputStream dostream = new DataOutputStream(new FileOutputStream(file));
+              dostream.write(buffer);
+              dostream.close();
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+     
+
+//        JFileChooser jfc = new JFileChooser();
+//        jfc.setDialogType(JFileChooser.SAVE_DIALOG);
+//        jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+//        File file = new File(filename);
+//        jfc.setSelectedFile(file);
+////        jfc.setCurrentDirectory(new File(downloadPath));
+////        jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+//        if( jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION ){
+//            System.out.println(jfc.getSelectedFile());
+//        }
+//
+
+//        JFileChooser chooser = new JFileChooser();
+//        chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+//        chooser.setCurrentDirectory(new File(System.getProperty("user.home") + "/Downloads"));
+////        File file = new File(filename);
+////        chooser.setSelectedFile(file);
+//        int retrival = chooser.showSaveDialog(null);
+//        if (retrival == JFileChooser.APPROVE_OPTION) {
+//            try {
+//                DataOutputStream dostream = new DataOutputStream(new java.io.FileOutputStream(chooser.getSelectedFile()));
+//                dostream.write(buffer);
+//                //dostream.flush();
+//                dostream.close();
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            }
+//        }
+    }
     private void GetFileFromServer(String fileName) {
       DefaultListModel model = new DefaultListModel();
       model.addElement(Constants.GET_FILE);

@@ -167,7 +167,13 @@ public class Client {
                         String filename = (String)model.elementAt(1);
                         String sender = (String)model.elementAt(2);
                         System.out.printf("receiveed file:" + filename);
-                        Singleton.mainForm.CreateBoxMessage(filename, false);
+                        Singleton.mainForm.CreatteBoxSendFile(filename, false);
+                    } else if (type == Constants.GET_FILE) {
+                        String filename = (String)model.elementAt(1);
+                        byte[] buffer = (byte[])model.elementAt(2);
+                        String sender = (String)model.elementAt(3);
+                        System.out.printf("receiveed file from server:" + filename);
+                        Singleton.mainForm.SaveFileFromServer(filename, buffer);
                     } else if (type == Constants.STATUS_CHANGE) {
                         String status = (String)model.elementAt(1);
                         String sender = (String)model.elementAt(2);
